@@ -1,0 +1,1810 @@
+openapi: 3.0.0
+info:
+  title: Ailyn Internal API
+  description: Ailyn Internal API specifications.
+  version: 0.0.0
+  contact:
+    email: developer@pukara.es
+    name: Pukara
+    url: TBD
+  license:
+    name: TBD
+servers:
+  - url: "http://localhost:8080"
+    description: Local development server
+  - url: "http://localhost:8081"
+    description: Development lambda
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: ""
+  schemas:
+    Tenant:
+      type: object
+      description: ""
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        organization:
+          type: string
+        slug:
+          type: string
+        timezone:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        tenant:
+          $ref: "#/components/schemas/Tenant"
+    WebVerification:
+      type: object
+      description: Web verification
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: boolean
+        ipv6:
+          type: boolean
+        https:
+          type: boolean
+        target:
+          type: string
+        port:
+          type: integer
+        response_codes:
+          type: array
+          items:
+            type: integer
+        interval:
+          type: integer
+        headers:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        tenant:
+          $ref: "#/components/schemas/Tenant"
+    DNSVerification:
+      type: object
+      description: DNS verification
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: boolean
+        ipv6:
+          type: boolean
+        target:
+          type: string
+        expected_response:
+          type: string
+        interval:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        tenant:
+          $ref: "#/components/schemas/Tenant"
+    ICMPVerification:
+      type: object
+      description: ICMP verification
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: boolean
+        ipv6:
+          type: boolean
+        target:
+          type: string
+        interval:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        tenant:
+          $ref: "#/components/schemas/Tenant"
+    Error:
+      description: Standard error format
+      x-examples:
+        401 Unauthenticated:
+          message: Unauthenticated.
+        422 Unprocessable Entity:
+          success: false
+          message: The given data was invalid.
+          errors:
+            email:
+              - The email field is required.
+            password:
+              - The password field is required.
+      type: object
+      properties:
+        message:
+          type: string
+          description: The error message
+        errors:
+          type: object
+          properties:
+            error-key:
+              type: array
+              description: Specific error type with all related errors
+              items: {}
+        success:
+          type: boolean
+          default: "false"
+      x-tags:
+        - error
+        - response
+    RegisterNewUser:
+      title: RegisterNewUser
+      type: object
+      description: ""
+      x-examples: {}
+      x-tags:
+        - request-body
+      properties:
+        name:
+          type: string
+        organization:
+          type: string
+          description: This should be unique
+        email:
+          type: string
+          format: email
+          description: This should be unique
+        password:
+          type: string
+          pattern: "^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\\d\\x])(?=.*[!$#%]).*$"
+          minLength: 6
+          format: password
+        password_confirmation:
+          type: string
+          pattern: "^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\\d\\x])(?=.*[!$#%]).*$"
+          minLength: 6
+          format: password
+        terms:
+          type: boolean
+          default: "true"
+        timezone:
+          type: string
+          description: " This should be a valid timezone from the getTimezones endpoint"
+        country:
+          type: string
+          description: This sould be a valid country from the getCountries endpoint
+        g-recaptcha-response:
+          $ref: "#/components/schemas/GoogleRecaptchaField"
+      required:
+        - name
+        - organization
+        - email
+        - password
+        - password_confirmation
+        - terms
+        - timezone
+        - country
+        - g-recaptcha-response
+    StandardOkResponse:
+      title: StandardOkResponse
+      type: object
+      x-examples:
+        Only message example:
+          success: true
+          data: []
+          message: Usuario registrado con éxito.
+      properties:
+        success:
+          type: boolean
+          default: "true"
+        data:
+          type: object
+        message:
+          type: string
+      x-tags:
+        - response
+    UserLoginRequest:
+      title: UserLoginRequest
+      type: object
+      x-tags:
+        - request-body
+        - user
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        g-recaptcha-response:
+          $ref: "#/components/schemas/GoogleRecaptchaField"
+      required:
+        - email
+        - password
+        - g-recaptcha-response
+      description: User login request
+    GoogleRecaptchaField:
+      title: GoogleRecaptchaField
+      x-tags:
+        - request-body
+      description: Google recaptcha field
+      type: string
+      x-examples: {}
+    UserLoginResponse:
+      title: UserLoginResponse
+      type: object
+      x-tags:
+        - response
+        - user
+      description: User login response
+      properties:
+        success:
+          type: boolean
+          default: "true"
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+              description: Bearer token
+            name:
+              type: string
+              description: User name
+    PasswordResetToken:
+      title: PasswordResetToken
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        token:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      description: A password reset token
+    PasswordResetRequest:
+      title: PasswordResetRequest
+      type: object
+      description: The password reset request
+      properties:
+        email:
+          type: string
+          format: email
+          description: ""
+        password:
+          type: string
+          format: password
+          pattern: "^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\\d\\x])(?=.*[!$#%]).*$"
+          minLength: 6
+        password_confirmation:
+          type: string
+          format: password
+          description: This field should match password field
+          pattern: "^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\\d\\x])(?=.*[!$#%]).*$"
+          minLength: 6
+        token:
+          type: string
+          description: The password reset token
+      required:
+        - email
+        - password
+        - password_confirmation
+        - token
+    WebVerificationRequest:
+      title: WebVerificationRequest
+      description: The web verification request
+      type: object
+      properties:
+        name:
+          type: string
+          description: The verification name
+        description:
+          type:
+            - string
+            - "null"
+          description: The verification description
+        status:
+          type: boolean
+          description: "The status of the verification. false = disabled | true = enabled"
+        ipv6:
+          type: boolean
+          description: "Check if the verification is on IPv6. false = ipv4 | true = ipv6"
+        https:
+          type: boolean
+          description: "Check if the verification is on HTTPS false = http | true = https"
+        target:
+          type: string
+          description: The target of the verification. Should be a valid IP address (ipv4 or ipv6) or a valid hostname (google.com)
+          example: 127.0.0.1
+        port:
+          type: integer
+          description: The target port
+        response_codes:
+          type: array
+          description: The expected response code. Should be a valid HTTP code
+          items:
+            type: integer
+        interval:
+          type: integer
+          description: "The interval of the verification in minutes. Should be a positive integer >= 1"
+          minimum: 1
+          example: 1
+        headers:
+          type:
+            - object
+            - "null"
+          description: "Any extra headers to include in the verification. Should be in the format of {HEADER_NAME => HEADER_VAL}"
+      required:
+        - name
+        - status
+        - ipv6
+        - https
+        - target
+        - response_codes
+        - interval
+      x-examples:
+        example-1: {}
+    DNSVerificationRequest:
+      title: DNSVerificationRequest
+      description: The dns verification request
+      type: object
+      x-examples:
+        example-1: {}
+      properties:
+        name:
+          type: string
+          description: The verification name
+        description:
+          type:
+            - string
+            - "null"
+          description: The verification description
+        status:
+          type: boolean
+          description: "The status of the verification. false = disabled | true = enabled"
+        ipv6:
+          type: boolean
+          description: "Check if the verification is on IPv6. false = ipv4 | true = ipv6"
+        target:
+          type: string
+          description: The target of the verification. Should be a valid IP address (ipv4 or ipv6) or a valid hostname (google.com)
+          example: 127.0.0.1
+        interval:
+          type: integer
+          description: "The interval of the verification in minutes. Should be a positive integer >= 1"
+          minimum: 1
+          example: 1
+        expected_response:
+          type: string
+      required:
+        - name
+        - status
+        - ipv6
+        - target
+        - interval
+        - expected_response
+    ICMPVerificationRequest:
+      title: ICMPVerificationRequest
+      description: The icmp verification request
+      type: object
+      x-examples:
+        example-1: {}
+      properties:
+        name:
+          type: string
+          description: The verification name
+        description:
+          type:
+            - string
+            - "null"
+          description: The verification description
+        status:
+          type: boolean
+          description: "The status of the verification. false = disabled | true = enabled"
+        ipv6:
+          type: boolean
+          description: "Check if the verification is on IPv6. false = ipv4 | true = ipv6"
+        target:
+          type: string
+          description: The target of the verification. Should be a valid IP address (ipv4 or ipv6) or a valid hostname (google.com)
+          example: 127.0.0.1
+        interval:
+          type: integer
+          description: "The interval of the verification in minutes. Should be a positive integer >= 1"
+          minimum: 1
+          example: 1
+      required:
+        - name
+        - status
+        - ipv6
+        - target
+        - interval
+tags:
+  - name: register
+  - name: user
+  - name: request-body
+  - name: login
+  - name: error
+  - name: reset-password
+  - name: verification
+  - name: web
+  - name: dns
+paths:
+  /login:
+    post:
+      summary: Login into the application.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLoginRequest"
+            examples: {}
+      responses:
+        "200":
+          description: Auth token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserLoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Unprocessable Entity
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples: {}
+      parameters: []
+      description: User login
+      operationId: userLogin
+      tags:
+        - login
+        - user
+  /logout:
+    post:
+      summary: Logs out the authenticated user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Log out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  data:
+                    type: array
+                    default: []
+                  message:
+                    type: string
+        "401":
+          description: Invalid or missing bearer token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: The error mesasage
+                    default: Unauthenticated.
+      tags:
+        - user
+      operationId: logoutUser
+      description: Logs out the current user
+  /current-user:
+    get:
+      summary: Get the current authenticated user data
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Valid bearer token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Invalid or missing bearer token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - user
+      description: Get the current user
+      operationId: getCurrentUser
+  /register/timezones:
+    get:
+      summary: Get all timezones
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    description: All the timezones
+                    properties:
+                      region-key:
+                        type: string
+                        default: Region/Timezone
+              examples:
+                1 timezone  example:
+                  value:
+                    success: true
+                    data:
+                      "(UTC-11:00) Midway Island": Pacific/Midway
+                    message: Zonas horarias disponibles
+      operationId: getTimezones
+      tags:
+        - register
+      description: Get all supported timezones
+  /register/countries:
+    get:
+      summary: Get all countries
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    description: All the countries
+                    properties:
+                      country-code:
+                        type: string
+                        default: Country name
+              examples:
+                1 country:
+                  value:
+                    success: true
+                    data:
+                      AF: Afganistán
+                    message: Países disponibles
+      operationId: getCountries
+      description: Get all supported countries
+      tags:
+        - register
+  /register:
+    get:
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterNewUser"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardOkResponse"
+          headers: {}
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: registerNewUser
+      description: Registers a new user
+      tags:
+        - register
+  /password/link:
+    post:
+      summary: Send reset password link
+      tags:
+        - user
+        - reset-password
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardOkResponse"
+        "422":
+          description: "Unprocessable Entity "
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: sendResetPasswordLink
+      description: Send a reset password link
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+        description: ""
+  "/password/find/{reset_token}":
+    parameters:
+      - schema:
+          type: string
+        name: reset_token
+        in: path
+        description: The reset password token given in the email url
+        required: true
+    get:
+      summary: Find password reset token
+      tags:
+        - user
+        - reset-password
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: "true"
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        $ref: "#/components/schemas/PasswordResetToken"
+                  message:
+                    type: string
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples: {}
+      operationId: findPasswordResetToken
+      description: Validate a password reset token
+  /password/reset:
+    post:
+      summary: Reset password
+      tags:
+        - user
+        - reset-password
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardOkResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: resetPassword
+      description: Reset users password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetRequest"
+  "/{tenant}/verifications/web-verifications":
+    parameters:
+      - schema:
+          type: string
+        name: tenant
+        in: path
+        description: The user tenant slug
+        required: true
+    post:
+      summary: Creates a new web verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebVerificationRequest"
+      tags:
+        - verification
+        - web
+      operationId: createWebVerification
+      description: Creates a new web verification
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: "true"
+                  data:
+                    type: object
+                    properties:
+                      web_verification:
+                        $ref: "#/components/schemas/WebVerification"
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - BearerAuth: []
+    get:
+      summary: Index web verifications
+      operationId: IndexWebVerification
+      responses:
+        "200":
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/WebVerification"
+                  links:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                      last:
+                        type: string
+                      prev:
+                        type:
+                          - string
+                          - "null"
+                      next:
+                        type:
+                          - string
+                          - "null"
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      from:
+                        type:
+                          - "null"
+                          - integer
+                      last_page:
+                        type: integer
+                      path:
+                        type: string
+                      per_page:
+                        type: number
+                      to:
+                        type:
+                          - number
+                          - "null"
+                      total:
+                        type: integer
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      description: Index the web verifications
+      tags:
+        - web
+        - verification
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: limit
+          description: The limit of  records per page
+        - schema:
+            type: number
+          in: query
+          name: page
+          description: The page of records to get
+      security:
+        - BearerAuth: []
+  "/{tenant}/verifications/web-verifications/{web_verification_id}":
+    parameters:
+      - schema:
+          type: string
+        name: tenant
+        in: path
+        required: true
+        description: The user tenant slug
+      - schema:
+          type: integer
+        name: web_verification_id
+        in: path
+        description: The verification ID
+        required: true
+    put:
+      summary: Update the verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      web_verification:
+                        $ref: "#/components/schemas/WebVerification"
+                  message:
+                    type: string
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Unprocessable Entity (WebDAV)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: updateWebVerification
+      description: Update a web verification by id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebVerificationRequest"
+            examples:
+              example-1:
+                value:
+                  name: Verificacion de prueba mas reciente actualizada
+                  description: Verificacion de prueba
+                  status: 1
+                  ipv6: 0
+                  https: 1
+                  target: google.com
+                  response_code: 200
+                  interval: 2
+                  headers:
+                    Content-Type: application/json
+        description: ""
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Deletes the verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items: {}
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: deleteWebVerification
+      description: Deletes a web verification by ID
+      security:
+        - BearerAuth: []
+    get:
+      summary: Gets a specific web verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  "":
+                    type: object
+                    properties:
+                      web_verification:
+                        $ref: "#/components/schemas/WebVerification"
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    success: true
+                    data:
+                      web_verification:
+                        id: 5
+                        name: Verificacion de prueba mas reciente actualizada
+                        description: Verificacion de prueba
+                        status: 0
+                        ipv6: 0
+                        https: 1
+                        target: google.com
+                        response_code: 200
+                        interval: 2
+                        headers:
+                          Content-Type: application/json
+                        created_at: "2020-10-15T21:52:21.000000Z"
+                        updated_at: "2020-10-15T22:01:13.000000Z"
+                    message: Verificación encontrada
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: getWebVerification
+      description: Gets a web verification by id
+      security:
+        - BearerAuth: []
+    post:
+      summary: Executes a the verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: runWebVerification
+      description: Executes a web verification
+      security:
+        - BearerAuth: []
+  "/{tenant}/verifications/dns-verifications":
+    parameters:
+      - schema:
+          type: string
+        name: tenant
+        in: path
+        required: true
+    get:
+      summary: Index dns verifications
+      tags:
+        - verification
+        - dns
+      responses:
+        "200":
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DNSVerification"
+                  links:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                      last:
+                        type: string
+                      prev:
+                        type:
+                          - string
+                          - "null"
+                      next:
+                        type:
+                          - string
+                          - "null"
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      from:
+                        type:
+                          - "null"
+                          - integer
+                      last_page:
+                        type: integer
+                      path:
+                        type: string
+                      per_page:
+                        type: number
+                      to:
+                        type:
+                          - number
+                          - "null"
+                      total:
+                        type: integer
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: IndexDNSVerification
+      description: Index the dns verifications
+      security:
+        - BearerAuth: []
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          description: The limit of  records per page
+          name: limit
+        - schema:
+            type: integer
+          in: query
+          name: page
+          description: The page of records to get
+    post:
+      summary: Creates a new dns verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DNSVerificationRequest"
+      tags:
+        - verification
+        - web
+      operationId: createDNSVerification
+      description: Creates a new dns verification
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: "true"
+                  data:
+                    type: object
+                    properties:
+                      dns_verification:
+                        $ref: "#/components/schemas/DNSVerification"
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal Server Error
+      security:
+        - BearerAuth: []
+  "/{tenant}/verifications/dns-verifications/{dns_verification_id}":
+    parameters:
+      - schema:
+          type: string
+        name: tenant
+        in: path
+        required: true
+        description: The user tenant slug
+      - schema:
+          type: integer
+        name: dns_verification_id
+        in: path
+        description: The verification ID
+        required: true
+    put:
+      summary: Update the verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      dns_verification:
+                        $ref: "#/components/schemas/DNSVerification"
+                  message:
+                    type: string
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Unprocessable Entity (WebDAV)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: updateDNSVerification
+      description: Update a dns verification by id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DNSVerificationRequest"
+            examples:
+              example-1:
+                value:
+                  name: Verificacion de prueba mas reciente actualizada
+                  description: Verificacion de prueba
+                  status: 1
+                  ipv6: 0
+                  https: 1
+                  target: google.com
+                  response_code: 200
+                  interval: 2
+                  headers:
+                    Content-Type: application/json
+        description: ""
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Deletes the verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items: {}
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: deleteDNSVerification
+      description: Deletes a dns verification by ID
+      security:
+        - BearerAuth: []
+    get:
+      summary: Gets a specific dns verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  "":
+                    type: object
+                    properties:
+                      dns_verification:
+                        $ref: "#/components/schemas/DNSVerification"
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    success: true
+                    data:
+                      dns_verification:
+                        id: 2
+                        name: Verificacion de prueba mas reciente
+                        description: Verificacion de prueba
+                        status: 0
+                        ipv6: 0
+                        target: google.com
+                        expected_response: google.com
+                        interval: 2
+                        created_at: "2020-10-17T20:13:12.000000Z"
+                        updated_at: "2020-10-17T20:13:12.000000Z"
+                    message: Verificación encontrada
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: getDNSVerification
+      description: Gets a dns verification by id
+      security:
+        - BearerAuth: []
+    post:
+      summary: Executes a the verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: runDNSVerification
+      description: Executes a dns verification
+      security:
+        - BearerAuth: []
+  "/{tenant}/verifications/icmp-verifications":
+    parameters:
+      - schema:
+          type: string
+        name: tenant
+        in: path
+        required: true
+    get:
+      summary: Index icmp verifications
+      tags:
+        - verification
+        - dns
+      responses:
+        "200":
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ICMPVerification"
+                  links:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                      last:
+                        type: string
+                      prev:
+                        type:
+                          - string
+                          - "null"
+                      next:
+                        type:
+                          - string
+                          - "null"
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      from:
+                        type:
+                          - "null"
+                          - integer
+                      last_page:
+                        type: integer
+                      path:
+                        type: string
+                      per_page:
+                        type: number
+                      to:
+                        type:
+                          - number
+                          - "null"
+                      total:
+                        type: integer
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: IndexICMPVerification
+      description: Index the icmp verifications
+      security:
+        - BearerAuth: []
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          description: The limit of  records per page
+          name: limit
+        - schema:
+            type: integer
+          in: query
+          name: page
+          description: The page of records to get
+    post:
+      summary: Creates a new icmp verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ICMPVerificationRequest"
+      tags:
+        - verification
+        - web
+      operationId: createICMPVerification
+      description: Creates a new icmp verification
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: "true"
+                  data:
+                    type: object
+                    properties:
+                      icmp_verification:
+                        $ref: "#/components/schemas/ICMPVerification"
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal Server Error
+      security:
+        - BearerAuth: []
+  "/{tenant}/verifications/icmp-verifications/{icmp_verification_id}":
+    parameters:
+      - schema:
+          type: string
+        name: tenant
+        in: path
+        required: true
+        description: The user tenant slug
+      - schema:
+          type: integer
+        name: icmp_verification_id
+        in: path
+        description: The verification ID
+        required: true
+    put:
+      summary: Update the verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      icmp_verification:
+                        $ref: "#/components/schemas/ICMPVerification"
+                  message:
+                    type: string
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Unprocessable Entity (WebDAV)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: updateICMPVerification
+      description: Update a icmp verification by id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ICMPVerificationRequest"
+            examples:
+              example-1:
+                value:
+                  name: Verificacion de prueba mas reciente actualizada
+                  description: Verificacion de prueba
+                  status: 1
+                  ipv6: 0
+                  https: 1
+                  target: google.com
+                  response_code: 200
+                  interval: 2
+                  headers:
+                    Content-Type: application/json
+        description: ""
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Deletes the verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items: {}
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: deleteICMPVerification
+      description: Deletes a ICMP verification by ID
+      security:
+        - BearerAuth: []
+    get:
+      summary: Gets a specific icmp verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  "":
+                    type: object
+                    properties:
+                      icmp_verification:
+                        $ref: "#/components/schemas/ICMPVerification"
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    success: true
+                    data:
+                      dns_verification:
+                        id: 2
+                        name: Verificacion de prueba mas reciente
+                        description: Verificacion de prueba
+                        status: 0
+                        ipv6: 0
+                        target: google.com
+                        expected_response: google.com
+                        interval: 2
+                        created_at: "2020-10-17T20:13:12.000000Z"
+                        updated_at: "2020-10-17T20:13:12.000000Z"
+                    message: Verificación encontrada
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: getICMPVerification
+      description: Gets a icmp verification by id
+      security:
+        - BearerAuth: []
+    post:
+      summary: Executes a the verification
+      tags:
+        - verification
+        - web
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      operationId: runICMPVerification
+      description: Executes a icmp verification
+      security:
+        - BearerAuth: []

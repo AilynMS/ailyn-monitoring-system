@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import "vue-select/src/scss/vue-select.scss";
+@import '~vue2-datepicker/scss/index.scss';
+@import "global/variables";
+@import "global/classes";
+@import "global/tooltip";
+
+/* 
+    Style guide:
+    1. Regular text use: .text (Optional: .hover:text-gray-900)
+    2. Title use: .title
+    3. Link color use: .text-primary-hoverable (Hover included)
+*/
+
+body {
+    background-color: $body-background;
+    scroll-behavior: smooth;
+    font-family: 'Inter', sans-serif;
+}

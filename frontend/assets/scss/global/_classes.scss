@@ -1,0 +1,160 @@
+.bg-primary {
+    background-color: $primary-color;
+}
+
+.bg-primary-hoverable {
+    background-color: $primary-color;
+
+    &:hover {
+        background-color: $primary-color-dark;
+    }
+}
+
+.bg-primary-light {
+    background-color: $primary-color-transparent;
+    color: $primary-color;
+}
+
+.bg-primary-light-hoverable {
+    background-color: $primary-color-transparent;
+    color: $primary-color;
+
+    &:hover {
+        background-color: $primary-color;
+        color: white;
+    }
+}
+
+/*.nuxt-link-exact-active {
+    background: rgba(255, 106, 0, 0.137);
+    color: #FF6C00;
+}*/
+
+.bg-blur {
+    backdrop-filter: blur(5px);
+}
+
+.text-primary {
+    color: $primary-color;
+}
+
+.hover-text-primary:hover {
+    color: $primary-color;
+}
+
+.text-primary-hoverable {
+    color: $primary-color;
+
+    &:hover {
+        color: $primary-color-dark;
+    }
+}
+
+.outline-none:focus {
+    outline: none !important;
+    border: none !important;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e7e7e7;
+}
+
+.title {
+    @apply text-gray-900 text-xl leading-9;
+}
+
+.text {
+    @apply text-gray-700 text-sm;
+}
+
+.primary-shadow {
+    box-shadow: 0 0 0px 0.5px $primary-color-transparent;
+    @apply transition ease-in-out duration-300 border-orange-300 border-2;
+}
+.primary-focus-shadow:focus {
+    box-shadow: 0 0 0px 3px $primary-color-transparent;
+    @apply transition ease-in-out duration-300;
+}
+.primary-hover-shadow:hover {
+    box-shadow: 0 0 0px 3px $primary-color-transparent;
+    @apply transition ease-in-out duration-300;
+}
+
+/* --- VueSelect --- */
+.vs__dropdown-toggle {
+    border: none;
+    @apply rounded-md bg-white text-sm;
+
+    .vs__selected-options {
+        @apply px-2 py-1 leading-8;
+    }
+
+    .vs__search::placeholder {
+        @apply text-gray-500;
+    }
+
+    .vs__selected {
+        @apply mr-2 border-0;
+    }
+}
+
+/* --- Pagination --- */
+.pagination-item {
+    @apply border border-gray-300 bg-white shadow-sm px-3 py-2 rounded-md text font-medium;
+}
+
+.pagination-item-accent {
+    @apply bg-white text-primary shadow-sm px-3 py-2 rounded-md text-sm font-medium;
+}
+
+.pagination-item-primary {
+    @apply bg-primary text-white shadow-sm px-3 py-2 rounded-md text-sm font-medium;
+}
+
+
+/* Toggler component */
+.toggle__dot {
+    top: -.25rem;
+    left: -.25rem;
+    transition: all 0.3s ease-in-out;
+}
+  
+input:checked ~ .toggle__dot {
+    transform: translateX(100%);
+    background-color: $primary-color;
+}
+
+/* --- Datepicker --- */
+.mx-datepicker {
+    @apply rounded-md border-0 transition duration-150 ease-in-out;
+
+    input {
+        padding: 1.1rem 0.75rem;
+        @apply border border-gray-100 rounded-md;
+    }
+}
+
+.mx-date-row {
+    .cell.active {
+        background-color: $primary-color;
+        color: white;
+    }
+
+    .cell.in-range {
+        background-color: $primary-color-transparent;
+    }
+
+    .cell.today {
+        color: $primary-color;
+    }
+
+    .cell.today.active {
+        color: white;
+    }
+}
+
+.mx-scrollbar-wrap {
+    .mx-time-item.active {
+        color: $primary-color;
+    }
+}

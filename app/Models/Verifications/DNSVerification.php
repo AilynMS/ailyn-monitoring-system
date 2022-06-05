@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Models\Verifications;
+
+use App\Multitenancy\Utility\Traits\BelongsToTenant;
+use App\Multitenancy\Utility\Traits\ForTenants;
+use App\Utils\Dkron\Models\BaseDkronVerification;
+use App\Utils\Interfaces\SafeDelete;
+
+class DNSVerification extends BaseDkronVerification implements SafeDelete
+{
+    use ForTenants, BelongsToTenant;
+
+    protected $guarded = [];
+
+    public function isDeleteable()
+    {
+        return true; // All verifications are deleteable for now
+    }
+
+    public function getJobPayload()
+    {
+        $data = [
+            'tenant_id' => $this->tenant_id,
+            'uid' => $this->token,
+            'target' => $this->target,
+            'ipv6' => $this->ipv6,
+            'expected_response' => $this->expected_response,
+        ];
+
+        return json_encode($data);
+    }
+
+    public function getVerificationType()
+    {
+        return 'dns';
+    }
+
+    public function getMeasurementName()
+    {
+        return config('verification_settings.measurement_names.dns');
+    }
+}
