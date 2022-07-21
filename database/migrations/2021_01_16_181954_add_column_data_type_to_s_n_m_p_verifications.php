@@ -15,7 +15,6 @@ class AddColumnDataTypeToSNMPVerifications extends Migration
     {
         Schema::table('s_n_m_p_verifications', function (Blueprint $table) {
             $table->string('data_type');
-            $table->string('oid');
         });
     }
 
@@ -28,7 +27,6 @@ class AddColumnDataTypeToSNMPVerifications extends Migration
     {
         Schema::table('s_n_m_p_verifications', function (Blueprint $table) {
             $table->dropColumn('data_type');
-            $table->dropColumn('oid');
         });
     }
 }
