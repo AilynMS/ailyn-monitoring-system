@@ -1,0 +1,16 @@
+# dependiences
+node_modules
+dist
+
+# logs
+npm-debug.log
+yarn-error.log
+
+# Nuxt build
+.nuxt
+
+.env
+.env.production
+
+# Test
+coverage
