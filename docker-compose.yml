@@ -60,7 +60,7 @@ services:
       - 8085:8080
     command: agent --server --bootstrap-expect=1
   influxdb:
-    image: influxdb:alpine
+    image: influxdb:1.8-alpine
     ports:
       - 8086:8086
   # docker-compose run influxdb-cli
@@ -72,6 +72,23 @@ services:
       - influxdb
     links:
       - influxdb
+  # Web verification service
+  web-verification:
+    image: node:18 
+    user: "node"
+    working_dir: /home/node/app
+    expose:
+      - "80"
+    volumes:
+      - ./microservices/http_validator:/home/node/app
+    command: "npm start"
+  # Nginx proxy for all microservices
+  nginx:
+    image: nginx:alpine
+    ports:
+     - 8888:80
+    volumes:
+     - ./nginx.conf:/etc/nginx/nginx.conf
 
 volumes:
   mysql-ailyn:
