@@ -20,7 +20,7 @@ class VerificationController extends Controller
 
     public function verify($user_id, Request $request)
     {
-        $url = config('app.client_url') . 'auth/login';
+        $url = config('app.client_url') . '/auth/login';
 
         if (! $request->hasValidSignature()) {
             $url .= '?success=false&error=expired_url';
