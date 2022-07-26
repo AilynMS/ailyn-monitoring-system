@@ -33,8 +33,9 @@ services:
       - 13306:3306
   frontend:
     build:
-      context: ./frontend
+      context: ./
       dockerfile: frontend/Dockerfile
+      command: yarn dev
     image: frontend:latest
     environment:
       PORT: 3000
