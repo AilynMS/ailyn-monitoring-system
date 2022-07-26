@@ -31,7 +31,16 @@ services:
       MYSQL_PASSWORD: secret
     ports:
       - 13306:3306
-
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: frontend:latest
+    environment:
+      PORT: 3000
+      PROXY_API: http://localhost:8080/
+    ports:
+      - 3000:3000
   # Optional
   console:
     image: bref/php-74
