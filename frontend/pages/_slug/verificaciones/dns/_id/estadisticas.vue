@@ -102,7 +102,7 @@ export default {
         getData() {
             this.clearData();
 
-            return this.$axios.$get(`${this.getTenant.slug}/verifications/dns-verifications/${this.idParam}/get-data?start_date=${this.dateFilteredStart}&end_date=${this.dateFilteredEnd}`)
+            return this.$axios.$get(`${this.getTenant.slug}/verifications/dns-verifications/${this.idParam}/get-data?start_date=${this.dateFilteredStart || 0}&end_date=${this.dateFilteredEnd || 0}`)
                 .then(res => {
                     this.chartInfoOK = res.data.result.filter(res => {
                         return res.a_record == this.records.expected_response;
