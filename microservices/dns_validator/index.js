@@ -50,6 +50,7 @@ app.post("/", async (req, res) => {
     console.log("error in dns test", e);
     response = e.response;
   } finally {
+    console.log(response)
     await influx.writePoints([
       {
         measurement: "dns_test",
