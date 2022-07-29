@@ -6,17 +6,6 @@ const app = express();
 const bodyParser = require("body-parser");
 const Influx = require("influx");
 
-function systemPing (host) {
-  try {
-    var exec = require('child_process').exec;
-    const makePingCall = (error, stdout, stderr) => console.log(error, stdout, stderr)
-
-    exec(`ping ${host} -n 1`, makePingCall);
-  } catch (error) {
-    console.error(error)
-  }
-}
-console.log(systemPing('google.com'))
 const influx = new Influx.InfluxDB({
   host: process.env.INFLUXDB_HOST,
   database: process.env.INFLUXDB_DATABASE,
