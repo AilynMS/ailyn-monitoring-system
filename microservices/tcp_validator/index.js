@@ -63,6 +63,7 @@ const handleTCPVerification = async (uid, url, port, writeText) => {
   } catch (e) {
     console.error("Hubo Error ", e);
   } finally {
+    console.log(response)
     await influx.writePoints([
       {
         measurement: "tcp_udp_test",
