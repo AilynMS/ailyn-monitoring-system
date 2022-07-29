@@ -48,7 +48,7 @@ app.post("/", async (req, res) => {
         },
         fields: {
           is_alive: response.alive,
-          duration: parseFloat(response.avg).toFixed(2),
+          duration: response.avg == 'unknown' ? 1000 : parseFloat(response.avg).toFixed(2),
         },
       },
     ]);
