@@ -85,7 +85,7 @@ services:
   ping-verification:
     build:
       context: ./
-      dockerfile: docker/validator.dockerfile
+      dockerfile: docker/ICMPValidatos.dockerfile
     image: icmp-valitador
     user: "node"
     working_dir: /home/node/app
