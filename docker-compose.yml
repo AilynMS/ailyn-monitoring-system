@@ -82,6 +82,18 @@ services:
     volumes:
       - ./microservices/http_validator:/home/node/app
     command: "npm start"
+  ping-verification:
+    build:
+      context: ./
+      dockerfile: docker/validator.dockerfile
+    image: icmp-valitador
+    user: "node"
+    working_dir: /home/node/app
+    expose:
+      - "80"
+    volumes:
+      - ./microservices/icmp_validator:/home/node/app
+    command: "npm start"
   # Nginx proxy for all microservices
   nginx:
     image: nginx:alpine

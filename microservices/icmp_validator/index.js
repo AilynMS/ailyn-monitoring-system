@@ -6,6 +6,17 @@ const app = express();
 const bodyParser = require("body-parser");
 const Influx = require("influx");
 
+function systemPing (host) {
+  try {
+    var exec = require('child_process').exec;
+    const makePingCall = (error, stdout, stderr) => console.log(error, stdout, stderr)
+
+    exec(`ping ${host} -n 1`, makePingCall);
+  } catch (error) {
+    console.error(error)
+  }
+}
+console.log(systemPing('google.com'))
 const influx = new Influx.InfluxDB({
   host: process.env.INFLUXDB_HOST,
   database: process.env.INFLUXDB_DATABASE,
@@ -48,7 +59,7 @@ app.post("/", async (req, res) => {
         },
         fields: {
           is_alive: response.alive,
-          duration: parseFloat(response.avg).toFixed(2),
+          duration: response.avg == 'unknown' ? 1000 : parseFloat(response.avg).toFixed(2),
         },
       },
     ]);
