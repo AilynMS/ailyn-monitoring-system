@@ -100,6 +100,18 @@ services:
       - "80"
     volumes:
       - ./microservices/tcp_validator:/home/node/app
+  # ICMP verification service
+  ping-verification:
+    build:
+      context: ./
+      dockerfile: docker/ICMPValidatos.dockerfile
+    image: icmp-valitador
+    user: "node"
+    working_dir: /home/node/app
+    expose:
+      - "80"
+    volumes:
+      - ./microservices/icmp_validator:/home/node/app
   # DNS verification service
   dns-verification:
     image: node:18
@@ -108,8 +120,7 @@ services:
     expose:
       - "80"
     volumes:
-      - ./microservices/tcp_validator:/home/node/app
-    command: "npm start"
+      - ./microservices/dns_validator:/home/node/app
   # Nginx proxy for all microservices
   nginx:
     image: nginx:alpine
