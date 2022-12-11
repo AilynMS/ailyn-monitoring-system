@@ -91,7 +91,17 @@ services:
     volumes:
       - ./microservices/http_validator:/home/node/app
     command: "npm start"
+  # TCP verification service
   tcp-verification:
+    image: node:18
+    user: "node"
+    working_dir: /home/node/app
+    expose:
+      - "80"
+    volumes:
+      - ./microservices/tcp_validator:/home/node/app
+  # DNS verification service
+  dns-verification:
     image: node:18
     user: "node"
     working_dir: /home/node/app
