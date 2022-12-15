@@ -127,7 +127,7 @@ export default {
             email: '',
             password: '',
             reCaptchaToken: '',
-            showCaptcha: true,
+            showCaptcha: process.env.ENABLE_RECAPTCHA == 'false' ? false : true,
             isLoading: false,
             hasError: false,
             errorMessage: '',
@@ -138,6 +138,8 @@ export default {
     },
 
     mounted() {
+        console.log('1: ' + process.env)
+        console.log('2: ' + process.env.ENABLE_RECAPTCHA == 'false' ? false : true)
         this.verificationExist();
         this.verificationSuccessfully();
     },
@@ -171,7 +173,7 @@ export default {
                 } catch (e) {
                     this.isLoading = false;
                     this.validateError(e.response.data);
-                    this.showCaptcha = true;
+                    this.showCaptcha = process.env.ENABLE_RECAPTCHA == 'false' ? false : true;
                     return this.hasError = true;
                 }
                 

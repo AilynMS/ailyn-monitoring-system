@@ -82,6 +82,10 @@ export default {
     baseURL: process.env.API_URL
   },
 
+  env: {
+    ENABLE_RECAPTCHA: process.env.ENABLE_RECAPTCHA
+  },
+
   router: {
     extendRoutes(routes, resolve) {
       routes.push(

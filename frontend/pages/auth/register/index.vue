@@ -217,7 +217,7 @@ export default {
             errorMessage: '',
             formCompleted: false,
             database: {},
-            showCaptcha: true
+            showCaptcha: process.env.ENABLE_RECAPTCHA == 'false' ? false : true
         }
     },
 
@@ -262,7 +262,7 @@ export default {
                 } catch (e) {
                     console.error(e.response.data);
                     this.isLoading = false;
-                    this.showCaptcha = true;
+                    this.showCaptcha = process.env.ENABLE_RECAPTCHA == 'false' ? false : true;
                     this.validateError(e.response.data);
                     this.hasError = true;
                     return this.handleScrollTop();
