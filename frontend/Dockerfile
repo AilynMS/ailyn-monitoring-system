@@ -10,11 +10,11 @@ WORKDIR /frontend
 COPY ./package.json ./
 COPY ./yarn.lock ./
 
-# Install node packages
-RUN yarn install
-
 # Copy or project directory (locally) in the current directory of our docker image (/frontend)
 COPY . .
+
+# Install node packages
+RUN yarn install
 
 # Build the app
 RUN yarn build
@@ -34,6 +34,9 @@ ENV PROXY_API=$PROXY_API
 
 # Set the browser base url
 ENV PROXY_LOGIN=$PROXY_LOGIN
+
+# Set the recaptcha
+ENV ENABLE_RECAPTCHA=$ENABLE_RECAPTCHA
 
 # Start the app
 CMD [ "yarn", "dev" ]

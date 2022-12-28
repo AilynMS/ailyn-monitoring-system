@@ -148,26 +148,27 @@ export default {
         async login() {
             this.formCompleted = await this.$refs.form.validate();
 
-            if(!this.reCaptchaToken.length) {
+            if(this.showCaptcha == true && !this.reCaptchaToken.length) {
                 return this.$toast.error('Completa el reCaptcha para continuar')
             }
 
             if (this.formCompleted) {
                 try {
-                    this.showCaptcha = false;
-                    this.verifySuccess = false;
-                    this.hasError = false;
-                    this.isLoading = true;
-
                     const data = {
                         email: this.email,
                         password: this.password,
+                        validatecaptcha: this.showCaptcha,
                         'g-recaptcha-response': this.reCaptchaToken
                     };
 
                     const response = await this.$auth.loginWith('local', { data });
                     
                     window.location = `/${this.$auth.user.tenant.slug}/verificaciones/web`;
+
+                    this.showCaptcha = false;
+                    this.verifySuccess = false;
+                    this.hasError = false;
+                    this.isLoading = true;
                     return this.showCaptcha = true;
                     
                 } catch (e) {

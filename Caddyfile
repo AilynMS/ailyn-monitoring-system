@@ -1,0 +1,3 @@
+https://www.caddyailyn.localhost {
+    reverse_proxy frontend:3000
+}

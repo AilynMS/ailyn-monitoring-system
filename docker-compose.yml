@@ -2,6 +2,15 @@ version: "3.5"
 
 services:
   # Required
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    volumes:
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+    depends_on:
+      - frontend
   web:
     image: bref/fpm-dev-gateway
     ports:
@@ -32,15 +41,15 @@ services:
     ports:
       - 13306:3306
   frontend:
+    restart: unless-stopped
     build:
       context: ./frontend
       dockerfile: Dockerfile
     image: frontend:latest
-    environment:
-      PORT: 3000
-      PROXY_API: http://localhost:8080/
     ports:
       - 3000:3000
+    env_file:
+      - ./frontend/.env
   # Optional
   console:
     image: bref/php-74
@@ -72,25 +81,29 @@ services:
     image: influxdb:1.8-alpine
     ports:
       - 8086:8086
+    environment:
+      - INFLUXDB_DB=ailynms
+    volumes:
+      - ./influxdb:/var/lib/influxdb
   # docker-compose run influxdb-cli
-  influxdb-cli:
-    image: influxdb
-    entrypoint:
-      - influx
-      - -host
-      - influxdb
-    links:
-      - influxdb
+  # influxdb-cli:
+  #   image: influxdb
+  #   entrypoint:
+  #     - influx
+  #     - -host
+  #     - influxdb
+  #   links:
+  #     - influxdb
   # Web verification service
   web-verification:
-    image: node:18 
+    image: node:18
     user: "node"
     working_dir: /home/node/app
     expose:
       - "80"
     volumes:
       - ./microservices/http_validator:/home/node/app
-    command: "npm start"
+    command: sh -c "npm install && npm start"
   # TCP verification service
   tcp-verification:
     image: node:18
@@ -100,6 +113,7 @@ services:
       - "80"
     volumes:
       - ./microservices/tcp_validator:/home/node/app
+    command: sh -c "npm install && npm start"
   # ICMP verification service
   ping-verification:
     build:
@@ -112,6 +126,7 @@ services:
       - "80"
     volumes:
       - ./microservices/icmp_validator:/home/node/app
+    command: sh -c "npm install && npm start"
   # DNS verification service
   dns-verification:
     image: node:18
@@ -121,13 +136,19 @@ services:
       - "80"
     volumes:
       - ./microservices/dns_validator:/home/node/app
+    command: sh -c "npm install && npm start"
   # Nginx proxy for all microservices
   nginx:
     image: nginx:alpine
     ports:
-     - 8888:80
+      - 8888:80
     volumes:
-     - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - dns-verification
+      - ping-verification
+      - tcp-verification
+      - web-verification
 
 volumes:
   mysql-ailyn:

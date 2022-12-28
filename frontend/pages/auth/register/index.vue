@@ -230,8 +230,10 @@ export default {
             const { acceptTerms } = this
             this.formCompleted = await this.$refs.form.validate();
             
-            if(!this.reCaptchaToken.length) {
-                return this.$toast.error('Completa el reCaptcha para continuar')
+            if (this.showCaptcha) {
+                if(!this.reCaptchaToken.length) {
+                    return this.$toast.error('Completa el reCaptcha para continuar');
+                }
             }
 
             if(!acceptTerms) {
@@ -241,10 +243,6 @@ export default {
 
             if (this.formCompleted) {
                 try {
-                    this.showCaptcha = false;
-                    this.hasError = false;
-                    this.isLoading = true;
-
                     const savedData = {
                         name: this.name,
                         organization: this.organization,
@@ -253,10 +251,15 @@ export default {
                         password_confirmation: this.confirmPassword,
                         terms: this.acceptTerms,
                         country: this.country,
+                        validatecaptcha: this.showCaptcha,
                         'g-recaptcha-response': this.reCaptchaToken
                     }
 
                     const response = await this.$axios.$post('/register', savedData);
+
+                    this.showCaptcha = false;
+                    this.hasError = false;
+                    this.isLoading = true;
                     return this.$router.push('/auth/register/verify');
 
                 } catch (e) {

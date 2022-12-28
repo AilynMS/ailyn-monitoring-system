@@ -60,25 +60,46 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'organization' => 'required|string|unique:tenants,name',
-            'email' => 'required|string|email|unique:users,email',
-            'password' => [
-                'required',
-                'string',
-                'min:' . config('user_settings.validations.password.min'),
-                'confirmed',
-                'regex:' . config('user_settings.validations.password.regex'),
-            ],
-            'terms' => 'required|accepted',
-            'country' => [
-                'required',
-                'string',
-                Rule::in($this->getCountriesArray()),
-            ],
-            'g-recaptcha-response' => 'recaptcha',
-        ]);
+        if ($request['validatecaptcha'] == false) {
+            $validated = $request->validate([
+                'name' => 'required|string',
+                'organization' => 'required|string|unique:tenants,name',
+                'email' => 'required|string|email|unique:users,email',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:' . config('user_settings.validations.password.min'),
+                    'confirmed',
+                    'regex:' . config('user_settings.validations.password.regex'),
+                ],
+                'terms' => 'required|accepted',
+                'country' => [
+                    'required',
+                    'string',
+                    Rule::in($this->getCountriesArray()),
+                ],
+            ]);
+        } else {
+            $validated = $request->validate([
+                'name' => 'required|string',
+                'organization' => 'required|string|unique:tenants,name',
+                'email' => 'required|string|email|unique:users,email',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:' . config('user_settings.validations.password.min'),
+                    'confirmed',
+                    'regex:' . config('user_settings.validations.password.regex'),
+                ],
+                'terms' => 'required|accepted',
+                'country' => [
+                    'required',
+                    'string',
+                    Rule::in($this->getCountriesArray()),
+                ],
+                'g-recaptcha-response' => 'recaptcha',
+            ]);
+        }
 
         $tenant_data = Arr::only($validated, ['organization', 'country']);
 

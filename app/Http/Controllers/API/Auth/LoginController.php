@@ -25,11 +25,18 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $validated = $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-            'g-recaptcha-response' => 'recaptcha',
-        ]);
+        if ($request['validatecaptcha'] == false) {
+            $validated = $request->validate([
+                'email' => 'required|string|email',
+                'password' => 'required|string'
+            ]);
+        } else {
+            $validated = $request->validate([
+                'email' => 'required|string|email',
+                'password' => 'required|string',
+                'g-recaptcha-response' => 'recaptcha',
+            ]);
+        }
 
         $user = User::where('email', $validated['email'])->first();
 
